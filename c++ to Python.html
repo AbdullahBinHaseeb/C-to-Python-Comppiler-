@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ to Python Web Transpiler</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        editor: '#1e1e1e',
+                        panel: '#2d2d2d',
+                        primary: '#3b82f6',
+                        primaryHover: '#2563eb',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar for IDE look */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b4b4b;
+            border-radius: 6px;
+            border: 3px solid #1e1e1e;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b6b6b;
+        }
+        
+        .code-area {
+            tab-size: 4;
+            -moz-tab-size: 4;
+            outline: none;
+            resize: none;
+        }
+        
+        .glass-panel {
+            background: rgba(45, 45, 45, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-[#121212] text-gray-200 font-sans h-screen flex flex-col overflow-hidden">
+
+    <header class="glass-panel border-b border-gray-700 px-6 py-4 flex justify-between items-center z-10 shadow-md">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-2 rounded-lg shadow-lg shadow-blue-500/30">
+                <i class="fa-solid fa-code text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-white tracking-tight">Source-to-Source Compiler</h1>
+                <p class="text-xs text-gray-400">CS-402 Semester Project | C++ to Python</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="https://github.com" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fa-brands fa-github text-xl"></i>
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
+        
+        <!-- Left Panel: C++ Input -->
+        <div class="flex-1 flex flex-col bg-panel rounded-xl border border-gray-700 shadow-xl overflow-hidden">
+            <div class="bg-editor px-4 py-2 flex justify-between items-center border-b border-gray-700">
+                <div class="flex items-center gap-2">
+                    <i class="fa-brands fa-cuttlefish text-blue-400"></i>
+                    <span class="text-sm font-semibold text-gray-300">C++ Source Code</span>
+                </div>
+                <button onclick="clearCode()" class="text-xs text-gray-400 hover:text-red-400 transition-colors" title="Clear Editor">
+                    <i class="fa-solid fa-trash-can"></i> Clear
+                </button>
+            </div>
+            <textarea id="cpp-input" spellcheck="false" class="code-area flex-1 bg-editor text-[#d4d4d4] font-mono p-4 text-sm focus:outline-none w-full h-full leading-relaxed">
+#include <iostream>
+using namespace std;
+
+int main() {
+    int count = 5;
+    
+    for(int i = 0; i < count; i++) {
+        if(i == 3) {
+            cout << "Skipping 3" << endl;
+        } else {
+            cout << "Iteration: " << i << endl;
+        }
+    }
+    
+    return 0;
+}</textarea>
+        </div>
+
+        <!-- Middle Panel: Actions (Converts to row on mobile, column on desktop) -->
+        <div class="flex lg:flex-col justify-center gap-4 items-center shrink-0">
+            <button onclick="transpileCode()" class="group relative bg-primary hover:bg-primaryHover text-white p-4 rounded-full shadow-lg shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 focus:outline-none">
+                <i class="fa-solid fa-arrow-right-arrow-left text-xl lg:rotate-0 rotate-90"></i>
+                <span class="absolute lg:left-full lg:-top-1 lg:ml-4 lg:mt-0 mt-14 text-sm bg-gray-800 px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-gray-700 pointer-events-none z-50">Transpile Code</span>
+            </button>
+        </div>
+
+        <!-- Right Panel: Python Output -->
+        <div class="flex-1 flex flex-col bg-panel rounded-xl border border-gray-700 shadow-xl overflow-hidden">
+            <div class="bg-editor px-4 py-2 flex justify-between items-center border-b border-gray-700">
+                <div class="flex items-center gap-2">
+                    <i class="fa-brands fa-python text-yellow-400"></i>
+                    <span class="text-sm font-semibold text-gray-300">Python Translation</span>
+                </div>
+                <button onclick="copyOutput()" class="text-xs text-gray-400 hover:text-white transition-colors" title="Copy to Clipboard">
+                    <i class="fa-regular fa-copy"></i> Copy
+                </button>
+            </div>
+            <div class="relative flex-1">
+                <!-- Overlay for simulated loading -->
+                <div id="loading-overlay" class="absolute inset-0 bg-editor/80 backdrop-blur-sm hidden flex-col justify-center items-center z-10">
+                    <i class="fa-solid fa-circle-notch fa-spin text-primary text-3xl mb-3"></i>
+                    <span class="text-sm text-gray-300 font-mono">Parsing Syntax Tree...</span>
+                </div>
+                <textarea id="python-output" readonly spellcheck="false" class="code-area absolute inset-0 bg-editor text-[#4ec9b0] font-mono p-4 text-sm focus:outline-none w-full h-full leading-relaxed placeholder-gray-600" placeholder="Python code will appear here..."></textarea>
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom Toast Notification (Replaces native alert) -->
+    <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 ease-out bg-gray-800 border-l-4 border-primary text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3 z-50 pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-primary"></i>
+        <span id="toast-message" class="font-medium">Success!</span>
+    </div>
+
+    <script>
+        // Transpiler Rules Definition
+        const rules = [
+            { pattern: /#include\s*<.*?>/g, replacement: '' },
+            { pattern: /using namespace std;/g, replacement: '' },
+            { pattern: /\bint\s+main\s*\((.*?)\)\s*\{/g, replacement: 'def main():' },
+            { pattern: /\bvoid\s+(\w+)\s*\((.*?)\)\s*\{/g, replacement: 'def $1($2):' },
+            { pattern: /\bint\s+(\w+)\s*\((.*?)\)\s*\{/g, replacement: 'def $1($2):' },
+            { pattern: /std::cout\s*<<\s*(.*?);/g, replacement: 'print($1)' },
+            { pattern: /cout\s*<<\s*(.*?);/g, replacement: 'print($1)' },
+            { pattern: /std::cin\s*>>\s*(\w+);/g, replacement: '$1 = input()' },
+            { pattern: /\bfor\s*\(\s*int\s+(\w+)\s*=\s*(.*?);\s*\1\s*<\s*(.*?);\s*\1\+\+\s*\)\s*\{/g, replacement: 'for $1 in range($2, $3):' },
+            { pattern: /\bif\s*\((.*?)\)\s*\{/g, replacement: 'if $1:' },
+            { pattern: /\belse\s+if\s*\((.*?)\)\s*\{/g, replacement: 'elif $1:' },
+            { pattern: /\belse\s*\{/g, replacement: 'else:' },
+            { pattern: /\bwhile\s*\((.*?)\)\s*\{/g, replacement: 'while $1:' },
+            { pattern: /return\s+(.*?);/g, replacement: 'return $1' },
+            { pattern: /(\w+)\s*=\s*(.*?);/g, replacement: '$1 = $2' }, // Standard assignments
+            { pattern: /^\s*\}/g, replacement: '' },
+            { pattern: /;/g, replacement: '' }
+        ];
+
+        // Core translation logic
+        function convertCPPtoPython(cppCode) {
+            const lines = cppCode.split('\n');
+            let pythonLines = [];
+            let indentLevel = 0;
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                
+                // Skip completely empty lines to keep it clean
+                if (!line) continue;
+
+                // Handle C++ block closures to decrease Python indentation
+                if (line === '}') {
+                    indentLevel = Math.max(0, indentLevel - 1);
+                    continue;
+                }
+
+                let translated = line;
+                
+                // Apply regex replacement rules sequentially
+                rules.forEach(rule => {
+                    translated = translated.replace(rule.pattern, rule.replacement);
+                });
+
+                // Specific string replacements for stream operators and newlines
+                translated = translated.replace(/<</g, ', ').replace(/endl/g, '"\\n"');
+
+                // Apply the calculated indent level (4 spaces per block depth)
+                let indentStr = "    ".repeat(indentLevel);
+                
+                // Don't push empty lines that resulted from removing headers/namespaces
+                if (translated.trim() !== "") {
+                    pythonLines.push(indentStr + translated);
+                }
+
+                // If the original C++ line opened a block, or the python translated line requires one
+                if (line.includes('{') || translated.endsWith(':')) {
+                    indentLevel++;
+                }
+            }
+
+            // Append standard Python execution guard if a main function was likely defined
+            if (pythonLines.some(l => l.includes('def main():'))) {
+                pythonLines.push("");
+                pythonLines.push("if __name__ == '__main__':");
+                pythonLines.push("    main()");
+            }
+
+            return pythonLines.join('\n');
+        }
+
+        function transpileCode() {
+            const inputElement = document.getElementById('cpp-input');
+            const outputElement = document.getElementById('python-output');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            
+            const rawCode = inputElement.value;
+            
+            if (rawCode.trim() === '') {
+                showToast('Please enter some C++ code to convert.', 'error');
+                return;
+            }
+
+            // Simulate parsing/processing time for visual effect
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('flex');
+            outputElement.value = '';
+
+            setTimeout(() => {
+                try {
+                    const pyCode = convertCPPtoPython(rawCode);
+                    outputElement.value = pyCode;
+                    loadingOverlay.classList.add('hidden');
+                    loadingOverlay.classList.remove('flex');
+                    showToast('Code successfully transpiled!', 'success');
+                } catch (error) {
+                    loadingOverlay.classList.add('hidden');
+                    loadingOverlay.classList.remove('flex');
+                    showToast('Error parsing code. Check syntax.', 'error');
+                    console.error(error);
+                }
+            }, 600); // 600ms simulated delay
+        }
+
+        function clearCode() {
+            document.getElementById('cpp-input').value = '';
+            document.getElementById('python-output').value = '';
+            document.getElementById('cpp-input').focus();
+        }
+
+        function copyOutput() {
+            const outputElement = document.getElementById('python-output');
+            
+            if (outputElement.value.trim() === '') {
+                showToast('Nothing to copy yet.', 'error');
+                return;
+            }
+
+            // Fallback copy method compatible with most browser environments including iframes
+            outputElement.select();
+            document.execCommand('copy');
+            
+            // Deselect text
+            window.getSelection().removeAllRanges();
+            
+            showToast('Python code copied to clipboard!', 'success');
+        }
+
+        // Custom Toast Notification Function (No alerts)
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMessage.textContent = message;
+
+            if (type === 'success') {
+                toast.classList.replace('border-red-500', 'border-primary');
+                toastIcon.className = 'fa-solid fa-circle-check text-primary';
+            } else {
+                toast.classList.replace('border-primary', 'border-red-500');
+                toastIcon.className = 'fa-solid fa-triangle-exclamation text-red-500';
+            }
+
+            // Animate In
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            // Auto Hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Allow Tab key to insert spaces in the textarea instead of changing focus
+        document.getElementById('cpp-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                // Insert 4 spaces
+                this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+        });
+    </script>
+</body>
+</html>

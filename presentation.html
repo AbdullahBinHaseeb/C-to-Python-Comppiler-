@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compiler Construction Project</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* CORE SETUP */
+        * { box-sizing: border-box; }
+        body {
+            background-color: #0f172a;
+            display: grid;
+            gap: 20px;
+            grid-template-columns: 1fr;
+            margin: 0;
+            min-height: 100vh;
+            padding: 20px 0;
+            place-items: center;
+        }
+
+        .slide-container {
+            align-items: flex-start;
+            background-color: #020617;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            font-family: 'Urbanist', sans-serif;
+            height: 720px;
+            justify-content: center;
+            overflow: hidden;
+            padding: 60px;
+            position: relative;
+            width: 1280px;
+            border: 1px solid #1e293b;
+        }
+
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        .slide-container > * { position: relative; z-index: 1; }
+
+        /* TYPOGRAPHY */
+        h1, h2, h3 { color: #f8fafc; font-weight: 700; margin: 0; }
+        p, li, td, th { color: #94a3b8; font-size: 24px; line-height: 1.6; }
+        
+        .slide-title {
+            font-size: 52px;
+            margin-bottom: 40px;
+            color: #38bdf8;
+            letter-spacing: -1px;
+            border-bottom: 2px solid #1e293b;
+            padding-bottom: 10px;
+            width: 100%;
+        }
+
+        .content-area {
+            flex-grow: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* LAYOUTS */
+        .title-layout { text-align: center; width: 100%; }
+        .title-layout h1 { font-size: 70px; margin-bottom: 10px; }
+        .title-layout h1 span { color: #38bdf8; }
+        .title-layout .subtitle { font-size: 30px; color: #64748b; margin-bottom: 40px; }
+        
+        .team-box {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 30px;
+            display: inline-block;
+            text-align: left;
+            min-width: 400px;
+        }
+        .team-box h3 { color: #38bdf8; margin-bottom: 15px; font-size: 28px; text-align: center;}
+        .team-box ul { list-style: none; padding: 0; margin: 0; }
+        .team-box li { font-size: 24px; color: #f8fafc; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;}
+
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; width: 100%; }
+        
+        .box {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            padding: 30px;
+            border-radius: 16px;
+        }
+        
+        ul.simple-list { margin-left: 20px; }
+        ul.simple-list li { margin-bottom: 20px; }
+
+        .demo-image {
+            width: 100%;
+            border-radius: 12px;
+            border: 2px solid #38bdf8;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        table { width: 100%; border-collapse: collapse; background: #0f172a; border-radius: 12px; overflow: hidden; }
+        th { text-align: left; padding: 20px; background: #1e293b; color: #38bdf8; font-size: 24px; }
+        td { padding: 20px; border-bottom: 1px solid #1e293b; font-family: monospace; font-size: 22px; color: #f8fafc; }
+
+    </style>
+</head>
+<body>
+
+<!-- SLIDE 1: TITLE & TEAM -->
+<div class="slide-container">
+    <div class="title-layout">
+        <h1><span>C++ to Python</span> Transpiler</h1>
+        <p class="subtitle">Semester Project: Compiler Construction</p>
+        
+        <div class="team-box">
+            <h3>Presented By</h3>
+            <ul>
+                <li><i class="fa-solid fa-user text-primary"></i> Abdullah Bin Haseeb</li>
+                <li><i class="fa-solid fa-user text-primary"></i> M. Areeb</li>
+                <li><i class="fa-solid fa-user text-primary"></i> Ahmed Bilal</li>
+                <li><i class="fa-solid fa-user text-primary"></i> Ammad Ullah</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 2: WHAT IS A TRANSPILER? -->
+<div class="slide-container">
+    <h2 class="slide-title">1. What is a Transpiler?</h2>
+    <div class="content-area">
+        <div class="box">
+            <p><strong>A normal compiler:</strong> Translates human code (like C++) into machine code (1s and 0s) so the computer can run it.</p>
+            <br>
+            <p><strong>A transpiler (Our Project):</strong> Translates one human language into another human language.</p>
+            <br>
+            <p>Think of it like Google Translate. Instead of translating English to Spanish, our project translates <strong>C++ code into Python code.</strong></p>
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 3: WHY C++ TO PYTHON? -->
+<div class="slide-container">
+    <h2 class="slide-title">2. Why Convert C++ to Python?</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div class="box">
+                <h3 style="color: #ef4444; margin-bottom: 20px;">The Problem with C++</h3>
+                <ul class="simple-list">
+                    <li>It has strict, difficult syntax.</li>
+                    <li>You have to declare data types (int, float, string) for everything.</li>
+                    <li>It takes a lot of lines of code to do simple tasks.</li>
+                </ul>
+            </div>
+            <div class="box">
+                <h3 style="color: #22c55e; margin-bottom: 20px;">The Power of Python</h3>
+                <ul class="simple-list">
+                    <li>Very easy to read and understand.</li>
+                    <li>Great for modern technologies like AI and Data Science.</li>
+                    <li>Does not require strict data types.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 4: OUR PROJECT INTERFACE -->
+<div class="slide-container">
+    <h2 class="slide-title">3. Our Web Interface</h2>
+    <div class="content-area" style="align-items: center;">
+        <p style="margin-bottom: 20px;">We built a beautiful website where users can type C++ on the left, and instantly get Python on the right.</p>
+        <img src="project_pic.jpeg" alt="Project Interface" class="demo-image">
+    </div>
+</div>
+
+<!-- SLIDE 5: HOW IT WORKS (ARCHITECTURE & APIs) -->
+<div class="slide-container">
+    <h2 class="slide-title">4. How Does It Work & APIs Used</h2>
+    <div class="content-area">
+        <p>Our project operates on a Client-Server architecture powered by three specific APIs:</p>
+        <br>
+        <div class="box" style="margin-bottom: 20px;">
+            <h3 style="color: #38bdf8;">1. The Frontend (Client)</h3>
+            <ul class="simple-list">
+                <li><strong>Fetch API:</strong> Acts as the network messenger that carries the C++ code from the website to the server.</li>
+                <li><strong>DOM API:</strong> Interacts with the browser to instantly update the screen with the final Python translation.</li>
+            </ul>
+        </div>
+        <div class="box">
+            <h3 style="color: #38bdf8;">2. The Backend (Server)</h3>
+            <ul class="simple-list">
+                <li><strong>Custom REST API:</strong> Built with Python and Flask, it receives the data, translates it, and returns the result.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 6: THE FRONTEND EXPLAINED -->
+<div class="slide-container">
+    <h2 class="slide-title">5. Step 1: The Frontend Website</h2>
+    <div class="content-area">
+        <ul class="simple-list">
+            <li><strong>Built with:</strong> HTML, CSS (Tailwind), and JavaScript.</li>
+            <li><strong>How it works:</strong> When the user clicks the "Convert" button, a JavaScript feature called an <strong>API Fetch</strong> packages the code.</li>
+            <li><strong>The Delivery:</strong> It acts like a messenger, carrying the C++ code across the internet to our backend server.</li>
+        </ul>
+    </div>
+</div>
+
+<!-- SLIDE 7: THE BACKEND EXPLAINED -->
+<div class="slide-container">
+    <h2 class="slide-title">6. Step 2: The Backend Server</h2>
+    <div class="content-area">
+        <ul class="simple-list">
+            <li><strong>Built with:</strong> Python and the Flask Framework.</li>
+            <li><strong>How it works:</strong> The server is always listening. When it receives the message from the frontend, it runs our "Lexical Engine".</li>
+            <li><strong>What it does:</strong> It finds C++ rules and replaces them with Python rules, then sends the answer back to the user's screen.</li>
+        </ul>
+    </div>
+</div>
+
+<!-- SLIDE 8: HOW WE TRANSLATE CODE -->
+<div class="slide-container">
+    <h2 class="slide-title">7. How We Translate Code</h2>
+    <div class="content-area">
+        <p style="margin-bottom: 20px;">We used <strong>Regular Expressions (Regex)</strong> to find specific patterns in the C++ text and swap them.</p>
+        <table>
+            <tr>
+                <th>C++ Code (Input)</th>
+                <th>Python Code (Output)</th>
+            </tr>
+            <tr>
+                <td>std::cout << "Hello";</td>
+                <td>print("Hello")</td>
+            </tr>
+            <tr>
+                <td>int number = 5;</td>
+                <td>number = 5</td>
+            </tr>
+            <tr>
+                <td>for(int i = 0; i < 5; i++)</td>
+                <td>for i in range(0, 5):</td>
+            </tr>
+            <tr>
+                <td>void myFunction()</td>
+                <td>def myFunction():</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- SLIDE 9: THE HARDEST PART -->
+<div class="slide-container">
+    <h2 class="slide-title">8. The Hardest Part: Indentation</h2>
+    <div class="content-area">
+        <div class="box">
+            <h3 style="color: #38bdf8; margin-bottom: 15px;">The Curly Brace Problem</h3>
+            <p>In C++, we use curly braces <strong>{ }</strong> to group code together inside loops or functions.</p>
+            <br>
+            <p>Python does not use braces. It relies strictly on <strong>empty spaces (indentation)</strong> to know which code belongs together.</p>
+            <br>
+            <p><strong>Our Solution:</strong> Our backend server mathematically counts every time a <strong>{</strong> opens and a <strong>}</strong> closes. It uses that math to add the exact right amount of blank spaces in the final Python text.</p>
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 10: CONCLUSION -->
+<div class="slide-container" style="text-align: center; align-items: center;">
+    <h2 class="slide-title" style="text-align: center; border: none;">Conclusion</h2>
+    <div class="content-area" style="align-items: center;">
+        <p style="font-size: 28px; text-align: center; max-width: 800px;">
+            We successfully built a modern, Client-Server transpiler that takes complex C++ logic and transforms it into clean Python code.
+        </p>
+        <br><br>
+        <h1 style="color: #38bdf8; font-size: 80px;">Thank You!</h1>
+        <p style="font-size: 24px; color: #64748b;">We are now ready to demonstrate the live website.</p>
+    </div>
+</div>
+
+<script>
+    // Simple script to allow scrolling through slides using arrow keys
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide-container');
+    
+    function scrollToSlide(index) {
+        if (index >= 0 && index < slides.length) {
+            slides[index].scrollIntoView({ behavior: 'smooth' });
+            currentSlide = index;
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+            e.preventDefault();
+            scrollToSlide(currentSlide + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            scrollToSlide(currentSlide - 1);
+        }
+    });
+</script>
+
+</body>
+</html>
